@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Meus Gastos</title>
+<meta name="theme-color" content="#1b7f5c">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <h1>Meus Gastos</h1>
+    <select id="monthFilter"></select>
+  </header>
+
+  <section class="summary">
+    <div class="card fuel">
+      <span class="label">Combustível</span>
+      <span class="value" id="totalFuel">R$ 0,00</span>
+    </div>
+    <div class="card food">
+      <span class="label">Alimentação</span>
+      <span class="value" id="totalFood">R$ 0,00</span>
+    </div>
+    <div class="card total">
+      <span class="label">Total do mês</span>
+      <span class="value" id="totalAll">R$ 0,00</span>
+    </div>
+  </section>
+
+  <form id="expenseForm" class="expense-form">
+    <div class="category-toggle">
+      <button type="button" class="cat-btn fuel active" data-cat="combustivel">⛽ Combustível</button>
+      <button type="button" class="cat-btn food" data-cat="alimentacao">🍔 Alimentação</button>
+    </div>
+    <input type="hidden" id="category" value="combustivel">
+
+    <div class="row">
+      <label for="value">Valor (R$)</label>
+      <input type="number" id="value" inputmode="decimal" step="0.01" min="0" placeholder="0,00" required>
+    </div>
+
+    <div class="row">
+      <label for="date">Data</label>
+      <input type="date" id="date" required>
+    </div>
+
+    <div class="row">
+      <label for="note">Observação (opcional)</label>
+      <input type="text" id="note" placeholder="Ex: posto Shell, mercado...">
+    </div>
+
+    <button type="submit" class="save-btn">Adicionar gasto</button>
+  </form>
+
+  <section class="history">
+    <h2>Histórico</h2>
+    <ul id="expenseList" class="expense-list"></ul>
+    <p id="emptyState" class="empty-state">Nenhum gasto lançado ainda.</p>
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
