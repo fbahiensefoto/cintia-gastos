@@ -3,7 +3,7 @@ const STORAGE_KEY = 'cintia_expenses';
 const state = {
   expenses: loadExpenses(),
   category: 'combustivel',
-  monthFilter: 'all',
+  monthFilter: monthKey(todayISO()),
 };
 
 const els = {
@@ -84,7 +84,9 @@ function render() {
 }
 
 function renderMonthFilter() {
-  const months = Array.from(new Set(state.expenses.map(e => monthKey(e.date)))).sort().reverse();
+  const monthSet = new Set(state.expenses.map(e => monthKey(e.date)));
+  monthSet.add(monthKey(todayISO()));
+  const months = Array.from(monthSet).sort().reverse();
   const current = state.monthFilter;
 
   els.monthFilter.innerHTML = '';
