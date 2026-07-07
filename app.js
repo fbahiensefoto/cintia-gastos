@@ -1,15 +1,24 @@
 const STORAGE_KEY = 'cintia_expenses';
 const LANG_KEY = 'cintia_lang';
 
+const CATEGORY_ICONS = {
+  combustivel: '⛽',
+  alimentacao: '🍔',
+  manutencao: '🔧',
+};
+
 const TRANSLATIONS = {
   pt: {
     htmlLang: 'pt-BR',
     appTitle: 'Meus Gastos',
     monthAll: 'Todos os meses',
+    yearAll: 'Todos os anos',
     labelFuel: 'Combustível',
     labelFood: 'Alimentação',
     labelMaintenance: 'Manutenção',
     labelTotalMonth: 'Total do mês',
+    labelTotalYear: 'Total do ano',
+    labelTotalAll: 'Total geral',
     catFuelBtn: '⛽ Combustível',
     catFoodBtn: '🍔 Alimentação',
     catMaintenanceBtn: '🔧 Manutenção',
@@ -27,10 +36,13 @@ const TRANSLATIONS = {
     htmlLang: 'en',
     appTitle: 'My Expenses',
     monthAll: 'All months',
+    yearAll: 'All years',
     labelFuel: 'Fuel',
     labelFood: 'Food',
     labelMaintenance: 'Maintenance',
     labelTotalMonth: 'Total this month',
+    labelTotalYear: 'Total this year',
+    labelTotalAll: 'Grand total',
     catFuelBtn: '⛽ Fuel',
     catFoodBtn: '🍔 Food',
     catMaintenanceBtn: '🔧 Maintenance',
@@ -48,10 +60,13 @@ const TRANSLATIONS = {
     htmlLang: 'es',
     appTitle: 'Mis Gastos',
     monthAll: 'Todos los meses',
+    yearAll: 'Todos los años',
     labelFuel: 'Combustible',
     labelFood: 'Alimentación',
     labelMaintenance: 'Mantenimiento',
     labelTotalMonth: 'Total del mes',
+    labelTotalYear: 'Total del año',
+    labelTotalAll: 'Total general',
     catFuelBtn: '⛽ Combustible',
     catFoodBtn: '🍔 Comida',
     catMaintenanceBtn: '🔧 Mantenimiento',
@@ -70,6 +85,7 @@ const TRANSLATIONS = {
 const state = {
   expenses: loadExpenses(),
   category: 'combustivel',
+  yearFilter: todayISO().slice(0, 4),
   monthFilter: monthKey(todayISO()),
   lang: loadLang(),
 };
@@ -87,6 +103,8 @@ const els = {
   totalFood: document.getElementById('totalFood'),
   totalMaintenance: document.getElementById('totalMaintenance'),
   totalAll: document.getElementById('totalAll'),
+  totalLabel: document.getElementById('totalLabel'),
+  yearFilter: document.getElementById('yearFilter'),
   monthFilter: document.getElementById('monthFilter'),
   langButtons: document.querySelectorAll('.lang-btn'),
 };
@@ -113,6 +131,11 @@ function init() {
   });
 
   els.form.addEventListener('submit', onSubmit);
+  els.yearFilter.addEventListener('change', () => {
+    state.yearFilter = els.yearFilter.value;
+    state.monthFilter = 'all';
+    render();
+  });
   els.monthFilter.addEventListener('change', () => {
     state.monthFilter = els.monthFilter.value;
     render();
@@ -156,6 +179,7 @@ function deleteExpense(id) {
 
 function render() {
   applyTranslations();
+  renderYearFilter();
   renderMonthFilter();
   const filtered = filteredExpenses();
   renderSummary(filtered);
@@ -182,9 +206,40 @@ function applyTranslations() {
   });
 }
 
+function renderYearFilter() {
+  const yearSet = new Set(state.expenses.map(e => e.date.slice(0, 4)));
+  yearSet.add(todayISO().slice(0, 4));
+  const years = Array.from(yearSet).sort().reverse();
+  const current = state.yearFilter;
+
+  els.yearFilter.innerHTML = '';
+  const allOpt = document.createElement('option');
+  allOpt.value = 'all';
+  allOpt.textContent = t('yearAll');
+  els.yearFilter.appendChild(allOpt);
+
+  years.forEach(y => {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    els.yearFilter.appendChild(opt);
+  });
+
+  if (current === 'all' || years.includes(current)) {
+    els.yearFilter.value = current;
+  } else {
+    els.yearFilter.value = 'all';
+    state.yearFilter = 'all';
+  }
+}
+
 function renderMonthFilter() {
-  const monthSet = new Set(state.expenses.map(e => monthKey(e.date)));
-  monthSet.add(monthKey(todayISO()));
+  const scoped = state.expenses.filter(e => state.yearFilter === 'all' || e.date.slice(0, 4) === state.yearFilter);
+  const monthSet = new Set(scoped.map(e => monthKey(e.date)));
+  const today = todayISO();
+  if (state.yearFilter === 'all' || today.slice(0, 4) === state.yearFilter) {
+    monthSet.add(monthKey(today));
+  }
   const months = Array.from(monthSet).sort().reverse();
   const current = state.monthFilter;
 
@@ -210,8 +265,11 @@ function renderMonthFilter() {
 }
 
 function filteredExpenses() {
-  if (state.monthFilter === 'all') return state.expenses;
-  return state.expenses.filter(e => monthKey(e.date) === state.monthFilter);
+  return state.expenses.filter(e => {
+    if (state.yearFilter !== 'all' && e.date.slice(0, 4) !== state.yearFilter) return false;
+    if (state.monthFilter !== 'all' && monthKey(e.date) !== state.monthFilter) return false;
+    return true;
+  });
 }
 
 function renderSummary(list) {
@@ -222,17 +280,19 @@ function renderSummary(list) {
   els.totalFood.textContent = formatBRL(food);
   els.totalMaintenance.textContent = formatBRL(maintenance);
   els.totalAll.textContent = formatBRL(fuel + food + maintenance);
+
+  if (state.monthFilter !== 'all') {
+    els.totalLabel.textContent = t('labelTotalMonth');
+  } else if (state.yearFilter !== 'all') {
+    els.totalLabel.textContent = t('labelTotalYear');
+  } else {
+    els.totalLabel.textContent = t('labelTotalAll');
+  }
 }
 
 function sumBy(list, category) {
   return list.filter(e => e.category === category).reduce((acc, e) => acc + e.value, 0);
 }
-
-const CATEGORY_ICONS = {
-  combustivel: '⛽',
-  alimentacao: '🍔',
-  manutencao: '🔧',
-};
 
 function renderList(list) {
   els.list.innerHTML = '';

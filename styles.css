@@ -64,13 +64,20 @@ body {
   background: rgba(27,127,92,0.12);
 }
 
+.filters-row {
+  display: flex;
+  gap: 6px;
+  align-self: flex-end;
+}
+
+#yearFilter,
 #monthFilter {
   border: 1px solid #d6dbd8;
   border-radius: 8px;
-  padding: 6px 10px;
+  padding: 6px 8px;
   background: var(--card-bg);
   font-size: 14px;
-  align-self: flex-end;
+  max-width: 110px;
 }
 
 .summary {
