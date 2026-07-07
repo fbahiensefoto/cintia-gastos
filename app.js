@@ -8,9 +8,11 @@ const TRANSLATIONS = {
     monthAll: 'Todos os meses',
     labelFuel: 'Combustível',
     labelFood: 'Alimentação',
+    labelMaintenance: 'Manutenção',
     labelTotalMonth: 'Total do mês',
     catFuelBtn: '⛽ Combustível',
     catFoodBtn: '🍔 Alimentação',
+    catMaintenanceBtn: '🔧 Manutenção',
     labelValue: 'Valor (R$)',
     labelDate: 'Data',
     labelNote: 'Observação (opcional)',
@@ -27,9 +29,11 @@ const TRANSLATIONS = {
     monthAll: 'All months',
     labelFuel: 'Fuel',
     labelFood: 'Food',
+    labelMaintenance: 'Maintenance',
     labelTotalMonth: 'Total this month',
     catFuelBtn: '⛽ Fuel',
     catFoodBtn: '🍔 Food',
+    catMaintenanceBtn: '🔧 Maintenance',
     labelValue: 'Amount (R$)',
     labelDate: 'Date',
     labelNote: 'Note (optional)',
@@ -46,9 +50,11 @@ const TRANSLATIONS = {
     monthAll: 'Todos los meses',
     labelFuel: 'Combustible',
     labelFood: 'Alimentación',
+    labelMaintenance: 'Mantenimiento',
     labelTotalMonth: 'Total del mes',
     catFuelBtn: '⛽ Combustible',
     catFoodBtn: '🍔 Comida',
+    catMaintenanceBtn: '🔧 Mantenimiento',
     labelValue: 'Valor (R$)',
     labelDate: 'Fecha',
     labelNote: 'Nota (opcional)',
@@ -79,6 +85,7 @@ const els = {
   emptyState: document.getElementById('emptyState'),
   totalFuel: document.getElementById('totalFuel'),
   totalFood: document.getElementById('totalFood'),
+  totalMaintenance: document.getElementById('totalMaintenance'),
   totalAll: document.getElementById('totalAll'),
   monthFilter: document.getElementById('monthFilter'),
   langButtons: document.querySelectorAll('.lang-btn'),
@@ -210,14 +217,22 @@ function filteredExpenses() {
 function renderSummary(list) {
   const fuel = sumBy(list, 'combustivel');
   const food = sumBy(list, 'alimentacao');
+  const maintenance = sumBy(list, 'manutencao');
   els.totalFuel.textContent = formatBRL(fuel);
   els.totalFood.textContent = formatBRL(food);
-  els.totalAll.textContent = formatBRL(fuel + food);
+  els.totalMaintenance.textContent = formatBRL(maintenance);
+  els.totalAll.textContent = formatBRL(fuel + food + maintenance);
 }
 
 function sumBy(list, category) {
   return list.filter(e => e.category === category).reduce((acc, e) => acc + e.value, 0);
 }
+
+const CATEGORY_ICONS = {
+  combustivel: '⛽',
+  alimentacao: '🍔',
+  manutencao: '🔧',
+};
 
 function renderList(list) {
   els.list.innerHTML = '';
@@ -229,7 +244,7 @@ function renderList(list) {
     const li = document.createElement('li');
     li.className = `expense-item ${exp.category}`;
     li.innerHTML = `
-      <div class="icon">${exp.category === 'combustivel' ? '⛽' : '🍔'}</div>
+      <div class="icon">${CATEGORY_ICONS[exp.category]}</div>
       <div class="info">
         <div class="date">${formatDate(exp.date)}</div>
         ${exp.note ? `<div class="note">${escapeHTML(exp.note)}</div>` : ''}

@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 <div class="app">
@@ -34,6 +34,10 @@
       <span class="label" data-i18n="labelFood">Alimentação</span>
       <span class="value" id="totalFood">R$ 0,00</span>
     </div>
+    <div class="card maintenance">
+      <span class="label" data-i18n="labelMaintenance">Manutenção</span>
+      <span class="value" id="totalMaintenance">R$ 0,00</span>
+    </div>
     <div class="card total">
       <span class="label" data-i18n="labelTotalMonth">Total do mês</span>
       <span class="value" id="totalAll">R$ 0,00</span>
@@ -44,6 +48,7 @@
     <div class="category-toggle">
       <button type="button" class="cat-btn fuel active" data-cat="combustivel" data-i18n="catFuelBtn">⛽ Combustível</button>
       <button type="button" class="cat-btn food" data-cat="alimentacao" data-i18n="catFoodBtn">🍔 Alimentação</button>
+      <button type="button" class="cat-btn maintenance" data-cat="manutencao" data-i18n="catMaintenanceBtn">🔧 Manutenção</button>
     </div>
     <input type="hidden" id="category" value="combustivel">
 
@@ -73,6 +78,6 @@
 
 </div>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

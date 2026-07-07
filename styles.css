@@ -1,6 +1,7 @@
 :root {
   --fuel: #d9782d;
   --food: #2d8fd9;
+  --maintenance: #7d5ba6;
   --primary: #1b7f5c;
   --bg: #f4f6f5;
   --card-bg: #ffffff;
@@ -74,15 +75,15 @@ body {
 
 .summary {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
   margin-bottom: 20px;
 }
 
 .card {
   background: var(--card-bg);
   border-radius: 14px;
-  padding: 14px;
+  padding: 10px 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   display: flex;
   flex-direction: column;
@@ -93,25 +94,29 @@ body {
   grid-column: 1 / -1;
   background: var(--primary);
   color: white;
+  padding: 14px;
 }
 
 .card .label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
-.card.total .label { color: rgba(255,255,255,0.85); }
+.card.total .label { color: rgba(255,255,255,0.85); font-size: 12px; }
 
 .card .value {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
 }
 
+.card.total .value { font-size: 20px; }
+
 .card.fuel .value { color: var(--fuel); }
 .card.food .value { color: var(--food); }
+.card.maintenance .value { color: var(--maintenance); }
 
 .expense-form {
   background: var(--card-bg);
@@ -123,17 +128,17 @@ body {
 
 .category-toggle {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 14px;
 }
 
 .cat-btn {
   flex: 1;
-  padding: 12px;
+  padding: 10px 4px;
   border-radius: 10px;
   border: 2px solid #e2e6e3;
   background: #fafbfa;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
@@ -149,6 +154,12 @@ body {
   border-color: var(--food);
   background: rgba(45,143,217,0.1);
   color: var(--food);
+}
+
+.cat-btn.maintenance.active {
+  border-color: var(--maintenance);
+  background: rgba(125,91,166,0.1);
+  color: var(--maintenance);
 }
 
 .row {
@@ -231,6 +242,7 @@ body {
 
 .expense-item.combustivel .icon { background: rgba(217,120,45,0.15); }
 .expense-item.alimentacao .icon { background: rgba(45,143,217,0.15); }
+.expense-item.manutencao .icon { background: rgba(125,91,166,0.15); }
 
 .expense-item .info {
   flex: 1;
@@ -257,6 +269,7 @@ body {
 
 .expense-item.combustivel .amount { color: var(--fuel); }
 .expense-item.alimentacao .amount { color: var(--food); }
+.expense-item.manutencao .amount { color: var(--maintenance); }
 
 .delete-btn {
   border: none;
