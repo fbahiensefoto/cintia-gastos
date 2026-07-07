@@ -64,6 +64,17 @@ body {
   background: rgba(27,127,92,0.12);
 }
 
+.settings-btn {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
 .filters-row {
   display: flex;
   gap: 6px;
@@ -294,23 +305,53 @@ body {
   padding: 20px 0;
 }
 
-.backup-section {
-  margin-top: 24px;
-  background: var(--card-bg);
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
 }
 
-.backup-section summary {
-  font-size: 14px;
-  font-weight: 600;
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-card {
+  background: var(--card-bg);
+  border-radius: 16px 16px 0 0;
+  padding: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.modal-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.modal-close {
+  border: none;
+  background: none;
+  font-size: 18px;
+  color: var(--muted);
   cursor: pointer;
-  color: var(--text);
+  padding: 4px 6px;
 }
 
 .backup-body {
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;

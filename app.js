@@ -148,6 +148,9 @@ const els = {
   copyBackupBtn: document.getElementById('copyBackupBtn'),
   restoreInput: document.getElementById('restoreInput'),
   restoreBtn: document.getElementById('restoreBtn'),
+  settingsBtn: document.getElementById('settingsBtn'),
+  closeBackupBtn: document.getElementById('closeBackupBtn'),
+  backupModal: document.getElementById('backupModal'),
 };
 
 init();
@@ -185,6 +188,11 @@ function init() {
   els.generateBackupBtn.addEventListener('click', generateBackup);
   els.copyBackupBtn.addEventListener('click', copyBackup);
   els.restoreBtn.addEventListener('click', restoreBackup);
+  els.settingsBtn.addEventListener('click', () => els.backupModal.classList.remove('hidden'));
+  els.closeBackupBtn.addEventListener('click', () => els.backupModal.classList.add('hidden'));
+  els.backupModal.addEventListener('click', (e) => {
+    if (e.target === els.backupModal) els.backupModal.classList.add('hidden');
+  });
 
   render();
 
