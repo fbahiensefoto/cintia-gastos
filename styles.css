@@ -223,6 +223,21 @@ body {
 
 .save-btn:active { opacity: 0.85; }
 
+.cancel-edit-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.cancel-edit-btn.hidden {
+  display: none;
+}
+
 .history h2 {
   font-size: 16px;
   margin: 0 0 10px;
@@ -245,6 +260,11 @@ body {
   align-items: center;
   gap: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  cursor: pointer;
+}
+
+.expense-item:active {
+  opacity: 0.85;
 }
 
 .expense-item .icon {

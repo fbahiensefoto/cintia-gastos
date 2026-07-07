@@ -1,8 +1,8 @@
-const CACHE_NAME = 'cintia-gastos-v7';
+const CACHE_NAME = 'cintia-gastos-v8';
 const ASSETS = [
   './index.html',
-  './styles.css?v=7',
-  './app.js?v=7',
+  './styles.css?v=8',
+  './app.js?v=8',
   './manifest.json',
 ];
 

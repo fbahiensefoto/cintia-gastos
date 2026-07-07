@@ -27,6 +27,9 @@ const TRANSLATIONS = {
     labelNote: 'Observação (opcional)',
     notePlaceholder: 'Ex: posto Shell, mercado...',
     saveBtn: 'Adicionar gasto',
+    updateBtn: 'Salvar alterações',
+    cancelEditBtn: 'Cancelar edição',
+    deleteConfirm: 'Excluir este gasto?',
     historyTitle: 'Histórico',
     emptyState: 'Nenhum gasto lançado ainda.',
     deleteLabel: 'Excluir',
@@ -63,6 +66,9 @@ const TRANSLATIONS = {
     labelNote: 'Note (optional)',
     notePlaceholder: 'E.g. gas station, market...',
     saveBtn: 'Add expense',
+    updateBtn: 'Save changes',
+    cancelEditBtn: 'Cancel edit',
+    deleteConfirm: 'Delete this expense?',
     historyTitle: 'History',
     emptyState: 'No expenses logged yet.',
     deleteLabel: 'Delete',
@@ -99,6 +105,9 @@ const TRANSLATIONS = {
     labelNote: 'Nota (opcional)',
     notePlaceholder: 'Ej: gasolinera, mercado...',
     saveBtn: 'Agregar gasto',
+    updateBtn: 'Guardar cambios',
+    cancelEditBtn: 'Cancelar edición',
+    deleteConfirm: '¿Eliminar este gasto?',
     historyTitle: 'Historial',
     emptyState: 'Aún no hay gastos registrados.',
     deleteLabel: 'Eliminar',
@@ -124,6 +133,7 @@ const state = {
   yearFilter: todayISO().slice(0, 4),
   monthFilter: monthKey(todayISO()),
   lang: loadLang(),
+  editingId: null,
 };
 
 const els = {
@@ -151,6 +161,8 @@ const els = {
   settingsBtn: document.getElementById('settingsBtn'),
   closeBackupBtn: document.getElementById('closeBackupBtn'),
   backupModal: document.getElementById('backupModal'),
+  saveBtn: document.querySelector('.save-btn'),
+  cancelEditBtn: document.getElementById('cancelEditBtn'),
 };
 
 init();
@@ -193,6 +205,11 @@ function init() {
   els.backupModal.addEventListener('click', (e) => {
     if (e.target === els.backupModal) els.backupModal.classList.add('hidden');
   });
+  els.cancelEditBtn.addEventListener('click', () => {
+    state.editingId = null;
+    resetForm();
+    render();
+  });
 
   render();
 
@@ -206,32 +223,77 @@ function onSubmit(e) {
   const value = parseFloat(els.value.value);
   if (!value || value <= 0) return;
 
-  const expense = {
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-    category: state.category,
-    value,
-    date: els.date.value || todayISO(),
-    note: els.note.value.trim(),
-  };
+  if (state.editingId) {
+    const exp = state.expenses.find(e => e.id === state.editingId);
+    if (exp) {
+      exp.category = state.category;
+      exp.value = value;
+      exp.date = els.date.value || todayISO();
+      exp.note = els.note.value.trim();
+    }
+    state.editingId = null;
+  } else {
+    const expense = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      category: state.category,
+      value,
+      date: els.date.value || todayISO(),
+      note: els.note.value.trim(),
+    };
+    state.expenses.unshift(expense);
+  }
 
-  state.expenses.unshift(expense);
   saveExpenses();
-
-  els.value.value = '';
-  els.note.value = '';
-  els.date.value = todayISO();
-
+  resetForm();
   render();
 }
 
+function resetForm() {
+  els.value.value = '';
+  els.note.value = '';
+  els.date.value = todayISO();
+  els.catButtons.forEach(b => b.classList.remove('active'));
+  document.querySelector('.cat-btn[data-cat="combustivel"]').classList.add('active');
+  state.category = 'combustivel';
+  els.categoryInput.value = 'combustivel';
+}
+
+function startEdit(exp) {
+  state.editingId = exp.id;
+  state.category = exp.category;
+  els.catButtons.forEach(b => b.classList.toggle('active', b.dataset.cat === exp.category));
+  els.categoryInput.value = exp.category;
+  els.value.value = exp.value;
+  els.date.value = exp.date;
+  els.note.value = exp.note || '';
+  els.form.scrollIntoView({ behavior: 'smooth' });
+  render();
+}
+
+function updateFormMode() {
+  if (state.editingId) {
+    els.saveBtn.textContent = t('updateBtn');
+    els.cancelEditBtn.classList.remove('hidden');
+  } else {
+    els.saveBtn.textContent = t('saveBtn');
+    els.cancelEditBtn.classList.add('hidden');
+  }
+}
+
 function deleteExpense(id) {
+  if (!confirm(t('deleteConfirm'))) return;
   state.expenses = state.expenses.filter(exp => exp.id !== id);
+  if (state.editingId === id) {
+    state.editingId = null;
+    resetForm();
+  }
   saveExpenses();
   render();
 }
 
 function render() {
   applyTranslations();
+  updateFormMode();
   renderYearFilter();
   renderMonthFilter();
   const filtered = filteredExpenses();
@@ -365,7 +427,11 @@ function renderList(list) {
       <div class="amount">${formatBRL(exp.value)}</div>
       <button class="delete-btn" aria-label="${t('deleteLabel')}">✕</button>
     `;
-    li.querySelector('.delete-btn').addEventListener('click', () => deleteExpense(exp.id));
+    li.querySelector('.delete-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteExpense(exp.id);
+    });
+    li.addEventListener('click', () => startEdit(exp));
     els.list.appendChild(li);
   });
 }
