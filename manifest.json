@@ -1,6 +1,6 @@
 {
-  "name": "Meus Gastos",
-  "short_name": "Gastos",
+  "name": "AbasteceAí",
+  "short_name": "AbasteceAí",
   "description": "Controle de gastos com combustível e alimentação",
   "start_url": "./index.html",
   "scope": "./",

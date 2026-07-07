@@ -10,7 +10,7 @@ const CATEGORY_ICONS = {
 const TRANSLATIONS = {
   pt: {
     htmlLang: 'pt-BR',
-    appTitle: 'Meus Gastos',
+    appTitle: 'AbasteceAí',
     monthAll: 'Todos os meses',
     yearAll: 'Todos os anos',
     labelFuel: 'Combustível',
@@ -49,7 +49,7 @@ const TRANSLATIONS = {
   },
   en: {
     htmlLang: 'en',
-    appTitle: 'My Expenses',
+    appTitle: 'AbasteceAí',
     monthAll: 'All months',
     yearAll: 'All years',
     labelFuel: 'Fuel',
@@ -88,7 +88,7 @@ const TRANSLATIONS = {
   },
   es: {
     htmlLang: 'es',
-    appTitle: 'Mis Gastos',
+    appTitle: 'AbasteceAí',
     monthAll: 'Todos los meses',
     yearAll: 'Todos los años',
     labelFuel: 'Combustible',
