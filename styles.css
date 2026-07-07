@@ -26,14 +26,41 @@ body {
 
 .topbar {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.title-row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 }
 
 .topbar h1 {
   font-size: 22px;
   margin: 0;
+}
+
+.lang-switch {
+  display: flex;
+  gap: 4px;
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.lang-btn.active {
+  opacity: 1;
+  background: rgba(27,127,92,0.12);
 }
 
 #monthFilter {
@@ -42,6 +69,7 @@ body {
   padding: 6px 10px;
   background: var(--card-bg);
   font-size: 14px;
+  align-self: flex-end;
 }
 
 .summary {

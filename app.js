@@ -1,9 +1,71 @@
 const STORAGE_KEY = 'cintia_expenses';
+const LANG_KEY = 'cintia_lang';
+
+const TRANSLATIONS = {
+  pt: {
+    htmlLang: 'pt-BR',
+    appTitle: 'Meus Gastos',
+    monthAll: 'Todos os meses',
+    labelFuel: 'Combustível',
+    labelFood: 'Alimentação',
+    labelTotalMonth: 'Total do mês',
+    catFuelBtn: '⛽ Combustível',
+    catFoodBtn: '🍔 Alimentação',
+    labelValue: 'Valor (R$)',
+    labelDate: 'Data',
+    labelNote: 'Observação (opcional)',
+    notePlaceholder: 'Ex: posto Shell, mercado...',
+    saveBtn: 'Adicionar gasto',
+    historyTitle: 'Histórico',
+    emptyState: 'Nenhum gasto lançado ainda.',
+    deleteLabel: 'Excluir',
+    months: ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],
+  },
+  en: {
+    htmlLang: 'en',
+    appTitle: 'My Expenses',
+    monthAll: 'All months',
+    labelFuel: 'Fuel',
+    labelFood: 'Food',
+    labelTotalMonth: 'Total this month',
+    catFuelBtn: '⛽ Fuel',
+    catFoodBtn: '🍔 Food',
+    labelValue: 'Amount (R$)',
+    labelDate: 'Date',
+    labelNote: 'Note (optional)',
+    notePlaceholder: 'E.g. gas station, market...',
+    saveBtn: 'Add expense',
+    historyTitle: 'History',
+    emptyState: 'No expenses logged yet.',
+    deleteLabel: 'Delete',
+    months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  },
+  es: {
+    htmlLang: 'es',
+    appTitle: 'Mis Gastos',
+    monthAll: 'Todos los meses',
+    labelFuel: 'Combustible',
+    labelFood: 'Alimentación',
+    labelTotalMonth: 'Total del mes',
+    catFuelBtn: '⛽ Combustible',
+    catFoodBtn: '🍔 Comida',
+    labelValue: 'Valor (R$)',
+    labelDate: 'Fecha',
+    labelNote: 'Nota (opcional)',
+    notePlaceholder: 'Ej: gasolinera, mercado...',
+    saveBtn: 'Agregar gasto',
+    historyTitle: 'Historial',
+    emptyState: 'Aún no hay gastos registrados.',
+    deleteLabel: 'Eliminar',
+    months: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],
+  },
+};
 
 const state = {
   expenses: loadExpenses(),
   category: 'combustivel',
   monthFilter: monthKey(todayISO()),
+  lang: loadLang(),
 };
 
 const els = {
@@ -19,6 +81,7 @@ const els = {
   totalFood: document.getElementById('totalFood'),
   totalAll: document.getElementById('totalAll'),
   monthFilter: document.getElementById('monthFilter'),
+  langButtons: document.querySelectorAll('.lang-btn'),
 };
 
 init();
@@ -31,6 +94,14 @@ function init() {
       btn.classList.add('active');
       state.category = btn.dataset.cat;
       els.categoryInput.value = state.category;
+    });
+  });
+
+  els.langButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.lang = btn.dataset.lang;
+      saveLang();
+      render();
     });
   });
 
@@ -77,10 +148,31 @@ function deleteExpense(id) {
 }
 
 function render() {
+  applyTranslations();
   renderMonthFilter();
   const filtered = filteredExpenses();
   renderSummary(filtered);
   renderList(filtered);
+}
+
+function t(key) {
+  return TRANSLATIONS[state.lang][key];
+}
+
+function applyTranslations() {
+  document.documentElement.lang = t('htmlLang');
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+
+  els.langButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === state.lang);
+  });
 }
 
 function renderMonthFilter() {
@@ -92,7 +184,7 @@ function renderMonthFilter() {
   els.monthFilter.innerHTML = '';
   const allOpt = document.createElement('option');
   allOpt.value = 'all';
-  allOpt.textContent = 'Todos os meses';
+  allOpt.textContent = t('monthAll');
   els.monthFilter.appendChild(allOpt);
 
   months.forEach(m => {
@@ -143,7 +235,7 @@ function renderList(list) {
         ${exp.note ? `<div class="note">${escapeHTML(exp.note)}</div>` : ''}
       </div>
       <div class="amount">${formatBRL(exp.value)}</div>
-      <button class="delete-btn" aria-label="Excluir">✕</button>
+      <button class="delete-btn" aria-label="${t('deleteLabel')}">✕</button>
     `;
     li.querySelector('.delete-btn').addEventListener('click', () => deleteExpense(exp.id));
     els.list.appendChild(li);
@@ -163,6 +255,15 @@ function saveExpenses() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.expenses));
 }
 
+function loadLang() {
+  const saved = localStorage.getItem(LANG_KEY);
+  return TRANSLATIONS[saved] ? saved : 'pt';
+}
+
+function saveLang() {
+  localStorage.setItem(LANG_KEY, state.lang);
+}
+
 function todayISO() {
   const d = new Date();
   const tz = d.getTimezoneOffset();
@@ -175,7 +276,7 @@ function monthKey(dateStr) {
 
 function monthLabel(key) {
   const [year, month] = key.split('-');
-  const names = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const names = TRANSLATIONS[state.lang].months;
   return `${names[parseInt(month, 10) - 1]}/${year}`;
 }
 
