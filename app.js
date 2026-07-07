@@ -30,6 +30,18 @@ const TRANSLATIONS = {
     historyTitle: 'Histórico',
     emptyState: 'Nenhum gasto lançado ainda.',
     deleteLabel: 'Excluir',
+    backupSummary: '🔄 Backup / Transferir dados',
+    backupExportHint: 'Gere um código com todos os seus gastos pra guardar ou enviar pro celular novo.',
+    generateBackupBtn: 'Gerar código',
+    copyBackupBtn: 'Copiar código',
+    copiedFeedback: 'Copiado!',
+    backupImportHint: 'Já tem um código? Cole abaixo pra restaurar os gastos.',
+    restorePlaceholder: 'Cole aqui o código de backup...',
+    restoreBtn: 'Restaurar backup',
+    restoreConfirm: 'Isso vai adicionar os gastos do backup aos que já existem neste aparelho. Continuar?',
+    restoreSuccess: 'Backup restaurado com sucesso!',
+    restoreError: 'Código inválido.',
+    backupEmpty: 'Nenhum gasto para gerar backup.',
     months: ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],
   },
   en: {
@@ -54,6 +66,18 @@ const TRANSLATIONS = {
     historyTitle: 'History',
     emptyState: 'No expenses logged yet.',
     deleteLabel: 'Delete',
+    backupSummary: '🔄 Backup / Transfer data',
+    backupExportHint: 'Generate a code with all your expenses to save or send to your new phone.',
+    generateBackupBtn: 'Generate code',
+    copyBackupBtn: 'Copy code',
+    copiedFeedback: 'Copied!',
+    backupImportHint: 'Already have a code? Paste it below to restore your expenses.',
+    restorePlaceholder: 'Paste your backup code here...',
+    restoreBtn: 'Restore backup',
+    restoreConfirm: 'This will add the backup expenses to the ones already on this device. Continue?',
+    restoreSuccess: 'Backup restored successfully!',
+    restoreError: 'Invalid code.',
+    backupEmpty: 'No expenses to back up.',
     months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
   },
   es: {
@@ -78,6 +102,18 @@ const TRANSLATIONS = {
     historyTitle: 'Historial',
     emptyState: 'Aún no hay gastos registrados.',
     deleteLabel: 'Eliminar',
+    backupSummary: '🔄 Copia de seguridad / Transferir datos',
+    backupExportHint: 'Genera un código con todos tus gastos para guardar o enviar a tu nuevo celular.',
+    generateBackupBtn: 'Generar código',
+    copyBackupBtn: 'Copiar código',
+    copiedFeedback: '¡Copiado!',
+    backupImportHint: '¿Ya tienes un código? Pégalo abajo para restaurar los gastos.',
+    restorePlaceholder: 'Pega aquí el código de respaldo...',
+    restoreBtn: 'Restaurar copia',
+    restoreConfirm: 'Esto agregará los gastos del respaldo a los que ya existen en este dispositivo. ¿Continuar?',
+    restoreSuccess: '¡Copia de seguridad restaurada con éxito!',
+    restoreError: 'Código inválido.',
+    backupEmpty: 'No hay gastos para respaldar.',
     months: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],
   },
 };
@@ -107,6 +143,11 @@ const els = {
   yearFilter: document.getElementById('yearFilter'),
   monthFilter: document.getElementById('monthFilter'),
   langButtons: document.querySelectorAll('.lang-btn'),
+  generateBackupBtn: document.getElementById('generateBackupBtn'),
+  backupOutput: document.getElementById('backupOutput'),
+  copyBackupBtn: document.getElementById('copyBackupBtn'),
+  restoreInput: document.getElementById('restoreInput'),
+  restoreBtn: document.getElementById('restoreBtn'),
 };
 
 init();
@@ -140,6 +181,10 @@ function init() {
     state.monthFilter = els.monthFilter.value;
     render();
   });
+
+  els.generateBackupBtn.addEventListener('click', generateBackup);
+  els.copyBackupBtn.addEventListener('click', copyBackup);
+  els.restoreBtn.addEventListener('click', restoreBackup);
 
   render();
 
@@ -315,6 +360,56 @@ function renderList(list) {
     li.querySelector('.delete-btn').addEventListener('click', () => deleteExpense(exp.id));
     els.list.appendChild(li);
   });
+}
+
+function generateBackup() {
+  if (!state.expenses.length) {
+    alert(t('backupEmpty'));
+    return;
+  }
+  els.backupOutput.value = toBase64(JSON.stringify(state.expenses));
+  els.backupOutput.select();
+}
+
+function copyBackup() {
+  if (!els.backupOutput.value) return;
+  navigator.clipboard.writeText(els.backupOutput.value).then(() => {
+    const original = t('copyBackupBtn');
+    els.copyBackupBtn.textContent = t('copiedFeedback');
+    setTimeout(() => { els.copyBackupBtn.textContent = original; }, 1500);
+  });
+}
+
+function restoreBackup() {
+  const code = els.restoreInput.value.trim();
+  if (!code) return;
+
+  let imported;
+  try {
+    imported = JSON.parse(fromBase64(code));
+    if (!Array.isArray(imported)) throw new Error('invalid');
+  } catch {
+    alert(t('restoreError'));
+    return;
+  }
+
+  if (!confirm(t('restoreConfirm'))) return;
+
+  const existingIds = new Set(state.expenses.map(e => e.id));
+  const newOnes = imported.filter(e => e && e.id && !existingIds.has(e.id));
+  state.expenses = state.expenses.concat(newOnes);
+  saveExpenses();
+  els.restoreInput.value = '';
+  alert(t('restoreSuccess'));
+  render();
+}
+
+function toBase64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function fromBase64(b64) {
+  return decodeURIComponent(escape(atob(b64)));
 }
 
 function loadExpenses() {

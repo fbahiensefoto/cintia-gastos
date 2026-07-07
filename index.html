@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=5">
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 <div class="app">
@@ -79,8 +79,22 @@
     <p id="emptyState" class="empty-state" data-i18n="emptyState">Nenhum gasto lançado ainda.</p>
   </section>
 
+  <details class="backup-section">
+    <summary data-i18n="backupSummary">🔄 Backup / Transferir dados</summary>
+    <div class="backup-body">
+      <p class="backup-hint" data-i18n="backupExportHint">Gere um código com todos os seus gastos pra guardar ou enviar pro celular novo.</p>
+      <button type="button" id="generateBackupBtn" class="backup-btn" data-i18n="generateBackupBtn">Gerar código</button>
+      <textarea id="backupOutput" class="backup-textarea" readonly></textarea>
+      <button type="button" id="copyBackupBtn" class="backup-btn" data-i18n="copyBackupBtn">Copiar código</button>
+
+      <p class="backup-hint" data-i18n="backupImportHint">Já tem um código? Cole abaixo pra restaurar os gastos.</p>
+      <textarea id="restoreInput" class="backup-textarea" data-i18n-placeholder="restorePlaceholder" placeholder="Cole aqui o código..."></textarea>
+      <button type="button" id="restoreBtn" class="backup-btn restore" data-i18n="restoreBtn">Restaurar backup</button>
+    </div>
+  </details>
+
 </div>
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
