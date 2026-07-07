@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'cintia_expenses';
+const VEHICLES_KEY = 'cintia_vehicles';
 const LANG_KEY = 'cintia_lang';
 
 const CATEGORY_ICONS = {
@@ -45,6 +46,16 @@ const TRANSLATIONS = {
     restoreSuccess: 'Backup restaurado com sucesso!',
     restoreError: 'Código inválido.',
     backupEmpty: 'Nenhum gasto para gerar backup.',
+    settingsTitle: '⚙️ Configurações',
+    vehiclesTitle: '🚗 Veículos',
+    vehicleEmptyHint: 'Nenhum veículo cadastrado ainda.',
+    vehiclePlatePlaceholder: 'Placa (ex: ABC1D23)',
+    vehicleNicknamePlaceholder: 'Apelido (ex: Corolla)',
+    addVehicleBtn: 'Adicionar veículo',
+    labelVehicle: 'Veículo',
+    noVehicleOption: 'Nenhum',
+    vehicleFilterAll: 'Todos os veículos',
+    deleteVehicleConfirm: 'Excluir este veículo? Os gastos já lançados não serão apagados.',
     months: ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],
   },
   en: {
@@ -84,6 +95,16 @@ const TRANSLATIONS = {
     restoreSuccess: 'Backup restored successfully!',
     restoreError: 'Invalid code.',
     backupEmpty: 'No expenses to back up.',
+    settingsTitle: '⚙️ Settings',
+    vehiclesTitle: '🚗 Vehicles',
+    vehicleEmptyHint: 'No vehicles registered yet.',
+    vehiclePlatePlaceholder: 'Plate (e.g. ABC1D23)',
+    vehicleNicknamePlaceholder: 'Nickname (e.g. Corolla)',
+    addVehicleBtn: 'Add vehicle',
+    labelVehicle: 'Vehicle',
+    noVehicleOption: 'None',
+    vehicleFilterAll: 'All vehicles',
+    deleteVehicleConfirm: 'Delete this vehicle? Expenses already logged will not be deleted.',
     months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
   },
   es: {
@@ -123,15 +144,28 @@ const TRANSLATIONS = {
     restoreSuccess: '¡Copia de seguridad restaurada con éxito!',
     restoreError: 'Código inválido.',
     backupEmpty: 'No hay gastos para respaldar.',
+    settingsTitle: '⚙️ Configuración',
+    vehiclesTitle: '🚗 Vehículos',
+    vehicleEmptyHint: 'Aún no hay vehículos registrados.',
+    vehiclePlatePlaceholder: 'Placa (ej: ABC1D23)',
+    vehicleNicknamePlaceholder: 'Apodo (ej: Corolla)',
+    addVehicleBtn: 'Agregar vehículo',
+    labelVehicle: 'Vehículo',
+    noVehicleOption: 'Ninguno',
+    vehicleFilterAll: 'Todos los vehículos',
+    deleteVehicleConfirm: '¿Eliminar este vehículo? Los gastos ya registrados no se eliminarán.',
     months: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],
   },
 };
 
 const state = {
   expenses: loadExpenses(),
+  vehicles: loadVehicles(),
   category: 'combustivel',
   yearFilter: todayISO().slice(0, 4),
   monthFilter: monthKey(todayISO()),
+  vehicleFilter: 'all',
+  formVehicleId: '',
   lang: loadLang(),
   editingId: null,
 };
@@ -163,6 +197,14 @@ const els = {
   backupModal: document.getElementById('backupModal'),
   saveBtn: document.querySelector('.save-btn'),
   cancelEditBtn: document.getElementById('cancelEditBtn'),
+  vehicleRow: document.getElementById('vehicleRow'),
+  expenseVehicle: document.getElementById('expenseVehicle'),
+  vehicleFilter: document.getElementById('vehicleFilter'),
+  vehicleList: document.getElementById('vehicleList'),
+  vehicleEmptyState: document.getElementById('vehicleEmptyState'),
+  vehiclePlate: document.getElementById('vehiclePlate'),
+  vehicleNickname: document.getElementById('vehicleNickname'),
+  addVehicleBtn: document.getElementById('addVehicleBtn'),
 };
 
 init();
@@ -176,7 +218,12 @@ function init() {
       btn.classList.add('active');
       state.category = btn.dataset.cat;
       els.categoryInput.value = state.category;
+      toggleVehicleRowVisibility();
     });
+  });
+
+  els.expenseVehicle.addEventListener('change', () => {
+    state.formVehicleId = els.expenseVehicle.value;
   });
 
   els.langButtons.forEach(btn => {
@@ -197,6 +244,12 @@ function init() {
     state.monthFilter = els.monthFilter.value;
     render();
   });
+  els.vehicleFilter.addEventListener('change', () => {
+    state.vehicleFilter = els.vehicleFilter.value;
+    render();
+  });
+
+  els.addVehicleBtn.addEventListener('click', addVehicle);
 
   els.generateBackupBtn.addEventListener('click', generateBackup);
   els.copyBackupBtn.addEventListener('click', copyBackup);
@@ -224,6 +277,8 @@ function onSubmit(e) {
   const value = parseFloat(els.value.value);
   if (!value || value <= 0) return;
 
+  const vehicleId = state.category === 'alimentacao' ? null : (els.expenseVehicle.value || null);
+
   if (state.editingId) {
     const exp = state.expenses.find(e => e.id === state.editingId);
     if (exp) {
@@ -231,6 +286,7 @@ function onSubmit(e) {
       exp.value = value;
       exp.date = els.date.value || todayISO();
       exp.note = els.note.value.trim();
+      exp.vehicleId = vehicleId;
     }
     state.editingId = null;
   } else {
@@ -240,6 +296,7 @@ function onSubmit(e) {
       value,
       date: els.date.value || todayISO(),
       note: els.note.value.trim(),
+      vehicleId,
     };
     state.expenses.unshift(expense);
   }
@@ -257,6 +314,12 @@ function resetForm() {
   document.querySelector('.cat-btn[data-cat="combustivel"]').classList.add('active');
   state.category = 'combustivel';
   els.categoryInput.value = 'combustivel';
+  state.formVehicleId = '';
+  toggleVehicleRowVisibility();
+}
+
+function toggleVehicleRowVisibility() {
+  els.vehicleRow.classList.toggle('hidden', state.category === 'alimentacao');
 }
 
 function startEdit(exp) {
@@ -267,6 +330,8 @@ function startEdit(exp) {
   els.value.value = exp.value;
   els.date.value = exp.date;
   els.note.value = exp.note || '';
+  state.formVehicleId = exp.vehicleId || '';
+  toggleVehicleRowVisibility();
   els.form.scrollIntoView({ behavior: 'smooth' });
   render();
 }
@@ -295,6 +360,9 @@ function deleteExpense(id) {
 function render() {
   applyTranslations();
   updateFormMode();
+  renderVehicleFilter();
+  renderVehicleFormOptions();
+  renderVehicleList();
   renderYearFilter();
   renderMonthFilter();
   const filtered = filteredExpenses();
@@ -384,8 +452,107 @@ function filteredExpenses() {
   return state.expenses.filter(e => {
     if (state.yearFilter !== 'all' && e.date.slice(0, 4) !== state.yearFilter) return false;
     if (state.monthFilter !== 'all' && monthKey(e.date) !== state.monthFilter) return false;
+    if (state.vehicleFilter !== 'all' && e.vehicleId !== state.vehicleFilter) return false;
     return true;
   });
+}
+
+function vehicleLabel(v) {
+  return v.nickname ? `${v.nickname} (${v.plate})` : v.plate;
+}
+
+function findVehicle(id) {
+  return state.vehicles.find(v => v.id === id);
+}
+
+function renderVehicleFilter() {
+  const current = state.vehicleFilter;
+  els.vehicleFilter.innerHTML = '';
+  const allOpt = document.createElement('option');
+  allOpt.value = 'all';
+  allOpt.textContent = t('vehicleFilterAll');
+  els.vehicleFilter.appendChild(allOpt);
+
+  state.vehicles.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.id;
+    opt.textContent = vehicleLabel(v);
+    els.vehicleFilter.appendChild(opt);
+  });
+
+  if (current === 'all' || state.vehicles.some(v => v.id === current)) {
+    els.vehicleFilter.value = current;
+  } else {
+    els.vehicleFilter.value = 'all';
+    state.vehicleFilter = 'all';
+  }
+}
+
+function renderVehicleFormOptions() {
+  const current = state.formVehicleId;
+  els.expenseVehicle.innerHTML = '';
+  const noneOpt = document.createElement('option');
+  noneOpt.value = '';
+  noneOpt.textContent = t('noVehicleOption');
+  els.expenseVehicle.appendChild(noneOpt);
+
+  state.vehicles.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.id;
+    opt.textContent = vehicleLabel(v);
+    els.expenseVehicle.appendChild(opt);
+  });
+
+  if (state.vehicles.some(v => v.id === current)) {
+    els.expenseVehicle.value = current;
+  } else {
+    els.expenseVehicle.value = '';
+    state.formVehicleId = '';
+  }
+}
+
+function renderVehicleList() {
+  els.vehicleList.innerHTML = '';
+  els.vehicleEmptyState.style.display = state.vehicles.length ? 'none' : 'block';
+
+  state.vehicles.forEach(v => {
+    const li = document.createElement('li');
+    li.className = 'vehicle-item';
+    li.innerHTML = `
+      <div class="vehicle-info">
+        <span class="nickname">${escapeHTML(v.nickname || v.plate)}</span>
+        ${v.nickname ? `<span class="plate">${escapeHTML(v.plate)}</span>` : ''}
+      </div>
+      <button class="delete-vehicle-btn" aria-label="${t('deleteLabel')}">✕</button>
+    `;
+    li.querySelector('.delete-vehicle-btn').addEventListener('click', () => deleteVehicle(v.id));
+    els.vehicleList.appendChild(li);
+  });
+}
+
+function addVehicle() {
+  const plate = els.vehiclePlate.value.trim().toUpperCase();
+  const nickname = els.vehicleNickname.value.trim();
+  if (!plate) return;
+
+  state.vehicles.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    plate,
+    nickname,
+  });
+  saveVehicles();
+
+  els.vehiclePlate.value = '';
+  els.vehicleNickname.value = '';
+  render();
+}
+
+function deleteVehicle(id) {
+  if (!confirm(t('deleteVehicleConfirm'))) return;
+  state.vehicles = state.vehicles.filter(v => v.id !== id);
+  if (state.vehicleFilter === id) state.vehicleFilter = 'all';
+  saveVehicles();
+  render();
 }
 
 function renderSummary(list) {
@@ -417,12 +584,14 @@ function renderList(list) {
   els.emptyState.style.display = sorted.length ? 'none' : 'block';
 
   sorted.forEach(exp => {
+    const vehicle = exp.vehicleId ? findVehicle(exp.vehicleId) : null;
+    const vehicleTag = vehicle ? `<span class="vehicle-tag">🚗 ${escapeHTML(vehicleLabel(vehicle))}</span>` : '';
     const li = document.createElement('li');
     li.className = `expense-item ${exp.category}`;
     li.innerHTML = `
       <div class="icon">${CATEGORY_ICONS[exp.category]}</div>
       <div class="info">
-        <div class="date">${formatDate(exp.date)}</div>
+        <div class="date">${formatDate(exp.date)}${vehicleTag}</div>
         ${exp.note ? `<div class="note">${escapeHTML(exp.note)}</div>` : ''}
       </div>
       <div class="amount">${formatBRL(exp.value)}</div>
@@ -498,6 +667,19 @@ function loadExpenses() {
 
 function saveExpenses() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.expenses));
+}
+
+function loadVehicles() {
+  try {
+    const raw = localStorage.getItem(VEHICLES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveVehicles() {
+  localStorage.setItem(VEHICLES_KEY, JSON.stringify(state.vehicles));
 }
 
 function loadLang() {

@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=10">
+<link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 <div class="app">
@@ -24,6 +24,7 @@
       </div>
     </div>
     <div class="filters-row">
+      <select id="vehicleFilter"></select>
       <select id="yearFilter"></select>
       <select id="monthFilter"></select>
     </div>
@@ -56,6 +57,11 @@
     </div>
     <input type="hidden" id="category" value="combustivel">
 
+    <div class="row" id="vehicleRow">
+      <label for="expenseVehicle" data-i18n="labelVehicle">Veículo</label>
+      <select id="expenseVehicle"></select>
+    </div>
+
     <div class="row">
       <label for="value" data-i18n="labelValue">Valor (R$)</label>
       <input type="number" id="value" inputmode="decimal" step="0.01" min="0" placeholder="0,00" required>
@@ -84,10 +90,25 @@
   <div id="backupModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 data-i18n="backupSummary">🔄 Backup / Transferir dados</h2>
+        <h2 data-i18n="settingsTitle">⚙️ Configurações</h2>
         <button type="button" id="closeBackupBtn" class="modal-close" aria-label="Fechar">✕</button>
       </div>
-      <div class="backup-body">
+
+      <section class="vehicles-section">
+        <h3 data-i18n="vehiclesTitle">🚗 Veículos</h3>
+        <ul id="vehicleList" class="vehicle-list"></ul>
+        <p id="vehicleEmptyState" class="backup-hint" data-i18n="vehicleEmptyHint">Nenhum veículo cadastrado ainda.</p>
+        <div class="vehicle-form">
+          <input type="text" id="vehiclePlate" data-i18n-placeholder="vehiclePlatePlaceholder" placeholder="Placa (ex: ABC1D23)">
+          <input type="text" id="vehicleNickname" data-i18n-placeholder="vehicleNicknamePlaceholder" placeholder="Apelido (ex: Corolla)">
+          <button type="button" id="addVehicleBtn" class="backup-btn" data-i18n="addVehicleBtn">Adicionar veículo</button>
+        </div>
+      </section>
+
+      <hr class="modal-divider">
+
+      <section class="backup-body">
+        <h3 data-i18n="backupSummary">🔄 Backup / Transferir dados</h3>
         <p class="backup-hint" data-i18n="backupExportHint">Gere um código com todos os seus gastos pra guardar ou enviar pro celular novo.</p>
         <button type="button" id="generateBackupBtn" class="backup-btn" data-i18n="generateBackupBtn">Gerar código</button>
         <textarea id="backupOutput" class="backup-textarea" readonly></textarea>
@@ -96,7 +117,7 @@
         <p class="backup-hint" data-i18n="backupImportHint">Já tem um código? Cole abaixo pra restaurar os gastos.</p>
         <textarea id="restoreInput" class="backup-textarea" data-i18n-placeholder="restorePlaceholder" placeholder="Cole aqui o código..."></textarea>
         <button type="button" id="restoreBtn" class="backup-btn restore" data-i18n="restoreBtn">Restaurar backup</button>
-      </div>
+      </section>
     </div>
   </div>
 
@@ -104,6 +125,6 @@
 
 </div>
 
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>

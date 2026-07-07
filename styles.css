@@ -77,10 +77,13 @@ body {
 
 .filters-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   align-self: flex-end;
+  justify-content: flex-end;
 }
 
+#vehicleFilter,
 #yearFilter,
 #monthFilter {
   border: 1px solid #d6dbd8;
@@ -187,10 +190,24 @@ body {
   margin-bottom: 12px;
 }
 
+.row.hidden {
+  display: none;
+}
+
 .row label {
   font-size: 13px;
   color: var(--muted);
   font-weight: 600;
+}
+
+.row select {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d6dbd8;
+  font-size: 16px;
+  width: 100%;
+  background: #ffffff;
+  color: var(--text);
 }
 
 .row input {
@@ -300,6 +317,13 @@ body {
   color: var(--muted);
 }
 
+.expense-item .info .vehicle-tag {
+  font-size: 11px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-left: 6px;
+}
+
 .expense-item .amount {
   font-weight: 700;
   font-size: 15px;
@@ -369,6 +393,71 @@ body {
   color: var(--muted);
   cursor: pointer;
   padding: 4px 6px;
+}
+
+.vehicles-section h3,
+.backup-body h3 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.modal-divider {
+  border: none;
+  border-top: 1px solid #e2e6e3;
+  margin: 16px 0;
+}
+
+.vehicle-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vehicle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafbfa;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.vehicle-item .vehicle-info .nickname {
+  font-weight: 600;
+}
+
+.vehicle-item .vehicle-info .plate {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.delete-vehicle-btn {
+  border: none;
+  background: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+}
+
+.vehicle-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.vehicle-form input {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d6dbd8;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
 .backup-body {
