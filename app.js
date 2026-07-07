@@ -169,6 +169,7 @@ init();
 
 function init() {
   els.date.value = todayISO();
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
   els.catButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       els.catButtons.forEach(b => b.classList.remove('active'));
